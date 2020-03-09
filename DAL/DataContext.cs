@@ -19,7 +19,8 @@ namespace DAL
                 .HasIndex(u => u.Email)
                 .IsUnique();
             modelBuilder.Entity<Position>()
-                .HasIndex(p => p.Name).IsUnique();
+                .HasIndex(p => p.Name)
+                .IsUnique();
 
         }
         public DbSet<User> Users { get; set; }
