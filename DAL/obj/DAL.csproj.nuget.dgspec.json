@@ -1,23 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\MinhNT44\\source\\API_Challenge\\DAL\\DAL.csproj": {}
+    "C:\\Users\\QuangHTM\\APIChallenge\\DAL\\DAL.csproj": {}
   },
   "projects": {
-    "C:\\Users\\MinhNT44\\source\\API_Challenge\\DAL\\DAL.csproj": {
+    "C:\\Users\\QuangHTM\\APIChallenge\\DAL\\DAL.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\MinhNT44\\source\\API_Challenge\\DAL\\DAL.csproj",
+        "projectUniqueName": "C:\\Users\\QuangHTM\\APIChallenge\\DAL\\DAL.csproj",
         "projectName": "DAL",
-        "projectPath": "C:\\Users\\MinhNT44\\source\\API_Challenge\\DAL\\DAL.csproj",
-        "packagesPath": "C:\\Users\\MinhNT44\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\MinhNT44\\source\\API_Challenge\\DAL\\obj\\",
+        "projectPath": "C:\\Users\\QuangHTM\\APIChallenge\\DAL\\DAL.csproj",
+        "packagesPath": "C:\\Users\\QuangHTM\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\QuangHTM\\APIChallenge\\DAL\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\MinhNT44\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\QuangHTM\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -45,9 +42,17 @@
               "target": "Package",
               "version": "[3.1.2, )"
             },
+            "Microsoft.EntityFrameworkCore.Relational": {
+              "target": "Package",
+              "version": "[3.1.2, )"
+            },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.1.2, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
               "version": "[3.1.2, )"
             }

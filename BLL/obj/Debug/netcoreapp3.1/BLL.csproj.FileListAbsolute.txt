@@ -9,3 +9,14 @@ C:\Users\MinhNT44\source\API_Challenge\BLL\obj\Debug\netcoreapp3.1\BLL.pdb
 C:\Users\MinhNT44\source\API_Challenge\BLL\bin\Debug\netcoreapp3.1\DAL.dll
 C:\Users\MinhNT44\source\API_Challenge\BLL\bin\Debug\netcoreapp3.1\DAL.pdb
 C:\Users\MinhNT44\source\API_Challenge\BLL\obj\Debug\netcoreapp3.1\BLL.csproj.CopyComplete
+C:\Users\QuangHTM\APIChallenge\BLL\bin\Debug\netcoreapp3.1\BLL.deps.json
+C:\Users\QuangHTM\APIChallenge\BLL\bin\Debug\netcoreapp3.1\BLL.dll
+C:\Users\QuangHTM\APIChallenge\BLL\bin\Debug\netcoreapp3.1\BLL.pdb
+C:\Users\QuangHTM\APIChallenge\BLL\bin\Debug\netcoreapp3.1\DAL.dll
+C:\Users\QuangHTM\APIChallenge\BLL\bin\Debug\netcoreapp3.1\DAL.pdb
+C:\Users\QuangHTM\APIChallenge\BLL\obj\Debug\netcoreapp3.1\BLL.csprojAssemblyReference.cache
+C:\Users\QuangHTM\APIChallenge\BLL\obj\Debug\netcoreapp3.1\BLL.AssemblyInfoInputs.cache
+C:\Users\QuangHTM\APIChallenge\BLL\obj\Debug\netcoreapp3.1\BLL.AssemblyInfo.cs
+C:\Users\QuangHTM\APIChallenge\BLL\obj\Debug\netcoreapp3.1\BLL.csproj.CopyComplete
+C:\Users\QuangHTM\APIChallenge\BLL\obj\Debug\netcoreapp3.1\BLL.dll
+C:\Users\QuangHTM\APIChallenge\BLL\obj\Debug\netcoreapp3.1\BLL.pdb
