@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace DAL.UnitOfWorks
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork : IDisposable
     {
         IRepositoryBase<T> GetRepository<T>() where T : class;
-        int SaveChanges();
-        Task<int> SaveChangesAsync();
+        void Commit();
     }
 }

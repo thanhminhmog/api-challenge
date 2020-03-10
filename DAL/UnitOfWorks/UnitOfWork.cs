@@ -8,19 +8,34 @@ namespace DAL.UnitOfWorks
 {
     public class UnitOfWork : IUnitOfWork
     {
-        public IRepositoryBase<T> GetRepository<T>() where T : class
+        private readonly DataContext _context;
+        private Dictionary<Type, object> repositories = new Dictionary<Type, object>();
+        public UnitOfWork(DataContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public int SaveChanges()
+        public void Commit()
         {
-            throw new NotImplementedException();
+            _context.SaveChanges();
         }
 
-        public Task<int> SaveChangesAsync()
+        public void Dispose()
         {
-            throw new NotImplementedException();
+            _context.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
+        public IRepository<T> GetRepository<T>() where T : class
+        {
+            var type = typeof(T);
+            if (!repositories.ContainsKey(type))
+            {
+                var repositoryType = typeof(Repository<>);
+                var repositoryInstance = Activator.CreateInstance(repositoryType.MakeGenericType(typeof(T)), _context);
+                repositories.Add(type, repositoryInstance);
+            }
+            return (IRepository<T>)repositories[type];
         }
     }
 }
