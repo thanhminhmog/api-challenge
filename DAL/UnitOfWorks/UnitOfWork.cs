@@ -26,16 +26,16 @@ namespace DAL.UnitOfWorks
             GC.SuppressFinalize(this);
         }
 
-        public IRepository<T> GetRepository<T>() where T : class
+        public IRepositoryBase<T> GetRepository<T>() where T : class
         {
             var type = typeof(T);
             if (!repositories.ContainsKey(type))
             {
-                var repositoryType = typeof(Repository<>);
+                var repositoryType = typeof(RepositoryBase<>);
                 var repositoryInstance = Activator.CreateInstance(repositoryType.MakeGenericType(typeof(T)), _context);
                 repositories.Add(type, repositoryInstance);
             }
-            return (IRepository<T>)repositories[type];
+            return (IRepositoryBase<T>)repositories[type];
         }
     }
 }
