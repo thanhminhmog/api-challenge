@@ -39,7 +39,7 @@ namespace BLL.BussinessLogics
         {
             string PosName = userProfile.PositionName;
             Guid posID = _uow.GetRepository<Position>().GetAll().SingleOrDefault(p => p.Name == PosName).PositionId;
-            if(posID == null)
+            if (posID == null)
             {
                 throw new ArgumentNullException();
             }
@@ -47,15 +47,11 @@ namespace BLL.BussinessLogics
                 .GetRepository<Challenge>()
                 .GetAll()
                 .Where(c => c.PositionId == posID).ToList();
-            List<ChallengeProfile> ChallengeProfilesList = new List<ChallengeProfile>();
-            foreach (Challenge c in ChallengesList)
+            List<ChallengeProfile> ChallengeProfilesList = ChallengesList.Select(c => new ChallengeProfile
             {
-                ChallengeProfilesList.Add(new ChallengeProfile
-                {
-                    ChallengeId = c.ChallengeId,
-                    ChallengeName = c.Name
-                });
-            }
+                ChallengeId = c.ChallengeId,
+                ChallengeName = c.Name
+            }).ToList();
 
             return ChallengeProfilesList;
         }
