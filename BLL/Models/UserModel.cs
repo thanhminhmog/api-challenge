@@ -32,6 +32,7 @@ namespace BLL.Models
         public string Email { get; set; }
         public string PositionName { get; set; }
     }
+
     public class UserLogin : UserModel
     {
         public string ConfirmationCode { get; set; }
