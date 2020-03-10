@@ -16,12 +16,21 @@ namespace BLL.BussinessLogics
         }
         public ChallengeContent ViewChallengeContent(Guid ChallengeId)
         {
-            Challenge challenge = _uow.GetRepository<Challenge>().GetAll().FirstOrDefault(c => c.ChallengeId == ChallengeId);
+            var challenge = _uow.GetRepository<Challenge>().GetAll().FirstOrDefault(c => c.ChallengeId == ChallengeId);
+            var posName = _uow.GetRepository<Position>().GetAll().SingleOrDefault(p => p.PositionId == challenge.PositionId).Name;
+            if (challenge == null)
+            {
+                throw new ArgumentNullException();
+            }
+            if (posName == null)
+            {
+                throw new ArgumentNullException();
+            }
             ChallengeContent challengeContent = new ChallengeContent
             {
                 ChallengeName = challenge.Name,
                 ChallengeDescription = challenge.Content,
-                PositionName = _uow.GetRepository<Position>().GetAll().SingleOrDefault(p => p.PositionId == challenge.PositionId).Name
+                PositionName = posName
             };
             return challengeContent;
         }
@@ -30,6 +39,10 @@ namespace BLL.BussinessLogics
         {
             string PosName = userProfile.PositionName;
             Guid posID = _uow.GetRepository<Position>().GetAll().SingleOrDefault(p => p.Name == PosName).PositionId;
+            if(posID == null)
+            {
+                throw new ArgumentNullException();
+            }
             List<Challenge> ChallengesList = _uow
                 .GetRepository<Challenge>()
                 .GetAll()

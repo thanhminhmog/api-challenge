@@ -1,12 +1,10 @@
-﻿using BLL.Models;
-using BLL.Helpers;
+﻿using BLL.Helpers;
+using BLL.Models;
 using DAL.Entities;
 using DAL.UnitOfWorks;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BLL.BussinessLogics
 {
@@ -30,11 +28,21 @@ namespace BLL.BussinessLogics
                                   .GetAll()
                                   .SingleOrDefault(u => u.Email == user.Email && u.ConfirmationCode == user.ConfirmationCode);
             string positionName = _uow.GetRepository<Position>().GetAll().SingleOrDefault(p => p.PositionId == loggedUser.PositionId).Name;
+            if (loggedUser == null)
+            {
+                throw new ArgumentNullException();
+            }
+            if (positionName == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             UserProfile userProfile = new UserProfile
             {
                 Email = loggedUser.Email,
                 PositionName = positionName
             };
+
             TokenManager tokenManager = new TokenManager(_options);
             string tokenString = tokenManager.CreateAccessToken(userProfile);
             return tokenString;
@@ -43,6 +51,11 @@ namespace BLL.BussinessLogics
         public UserLogin Register(UserRegister user)
         {
             Guid positionId = _uow.GetRepository<Position>().GetAll().SingleOrDefault(p => p.Name == user.PositionName).PositionId;
+            if (positionId == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             string newCofimationCode = new ConfirmationCodeManager().GenerateConfimationCode();
 
             //  Use domain class for now, will implement mapper later
