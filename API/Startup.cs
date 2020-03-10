@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BLL.BussinessLogics;
 using DAL;
 using DAL.UnitOfWorks;
 using Microsoft.AspNetCore.Builder;
@@ -34,6 +35,8 @@ namespace API
 
             #region Dependency
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IUserLogic, UserLogic>();
+            services.AddScoped<IGuestLogic, GuestLogic>();
             #endregion
 
 
