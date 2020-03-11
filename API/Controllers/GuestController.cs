@@ -28,7 +28,12 @@ namespace API.Controllers
         }
         #endregion
 
-
+        /// <summary>
+        /// View Start page
+        /// </summary>
+        /// <returns>Start page</returns>
+        /// <response code="200">Start page</response>
+        /// <response code="500">Internal Error</response>
         [HttpGet]
         public IActionResult Guest()
         {
@@ -36,6 +41,12 @@ namespace API.Controllers
             return Ok(index.Message);
         }
 
+        /// <summary>
+        /// View Help page
+        /// </summary>
+        /// <returns>Help page</returns>
+        /// <response code="200">Help page</response>
+        /// <response code="500">Internal Error</response>
         [HttpGet("help")]
         public IActionResult Help()
         {
@@ -47,6 +58,13 @@ namespace API.Controllers
                 + contentList.ToString());
         }
 
+        /// <summary>
+        /// Register a User
+        /// </summary>
+        /// <returns>User's Email and User's Confirmation Code</returns>
+        /// <response code="200">User Registed</response>
+        /// <response code="400">Not have enough infomation</response>
+        /// <response code="500">Internal Error</response>
         [HttpPost("register")]
         public IActionResult Register(UserRegister user)
         {
@@ -84,6 +102,14 @@ namespace API.Controllers
             return Ok(userLogin);
         }
 
+        /// <summary>
+        /// Login to get Access Token
+        /// </summary>
+        /// <returns>Access token</returns>
+        /// <response code="200">Logged in</response>
+        /// <response code="400">Not have enough infomation</response>
+        /// <response code="404">User Not Exist</response>
+        /// <response code="500">Internal Error</response>
         [HttpPost("login")]
         public IActionResult Login(string email, string confirmationCode)
         {
@@ -92,13 +118,14 @@ namespace API.Controllers
                 Email = email,
                 ConfirmationCode = confirmationCode,
             };
-            string token = "";
 
             //  Check For Null Inputs
             if (email.Length <= 0 || confirmationCode.Length <= 0)
             {
                 return BadRequest("Email and ConfimationCode can not be empty");
             }
+
+            string token;
             try
             {
                 token = _logic.Login(user);

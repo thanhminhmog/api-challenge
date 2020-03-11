@@ -21,6 +21,15 @@ namespace API.Controllers
             _userLogic = userLogic;
         }
 
+        /// <summary>
+        /// View List of Challeges of User's position
+        /// </summary>
+        /// <returns>List of challenges</returns>
+        /// <response code="200">List of challenge</response>
+        /// <response code="400">Not have enough infomation</response>
+        /// <response code="401">Unauthorize</response>
+        /// <response code="404">Empty challenge list</response>
+        /// <response code="500">Internal Error</response>
         [HttpGet]
         public IActionResult ViewChallengeList()
         {
@@ -45,6 +54,15 @@ namespace API.Controllers
             return Ok(challenges);
         }
 
+        /// <summary>
+        /// View Challenge's context
+        /// </summary>
+        /// <returns>Challenge's context</returns>
+        /// <response code="200">Challenge Description</response>
+        /// <response code="400">Not have enough infomation</response>
+        /// <response code="401">Unauthorize</response>
+        /// <response code="403">User's position different from challenge's position</response>
+        /// <response code="500">Internal Error</response>
         [HttpGet("{id}")]
         public IActionResult GetChallengeDetail(Guid id)
         {
@@ -62,7 +80,6 @@ namespace API.Controllers
             }
 
             var chal = _userLogic.ViewChallengeContent(id);
-
 
             if (!userProfile.PositionName.Equals(chal.PositionName))
             {
