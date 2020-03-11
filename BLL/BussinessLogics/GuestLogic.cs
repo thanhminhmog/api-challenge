@@ -24,17 +24,22 @@ namespace BLL.BussinessLogics
 
         public string Login(UserLogin user)
         {
-            User loggedUser = _uow.GetRepository<User>()
-                                  .GetAll()
-                                  .SingleOrDefault(u => u.Email == user.Email && u.ConfirmationCode == user.ConfirmationCode);
-            string positionName = _uow.GetRepository<Position>().GetAll().SingleOrDefault(p => p.PositionId == loggedUser.PositionId).Name;
+            User loggedUser = _uow
+                .GetRepository<User>()
+                .GetAll()
+                .SingleOrDefault(u => u.Email == user.Email && u.ConfirmationCode == user.ConfirmationCode);
             if (loggedUser == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("Incorrect Email or Password");
             }
+            
+            string positionName = _uow
+                .GetRepository<Position>()
+                .GetAll()
+                .SingleOrDefault(p => p.PositionId == loggedUser.PositionId).Name;
             if (positionName == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentException("Invalid Position Applied");
             }
 
             UserProfile userProfile = new UserProfile
@@ -50,10 +55,17 @@ namespace BLL.BussinessLogics
 
         public UserLogin Register(UserRegister user)
         {
-            Guid positionId = _uow.GetRepository<Position>().GetAll().SingleOrDefault(p => p.Name == user.PositionName).PositionId;
+            if (user == null)
+            {
+                throw new ArgumentNullException("Invalid Acccount Input");
+            }
+            Guid positionId = _uow
+                .GetRepository<Position>()
+                .GetAll()
+                .SingleOrDefault(p => p.Name == user.PositionName).PositionId;
             if (positionId == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentException("Invalid Position");
             }
 
             string newCofimationCode = new ConfirmationCodeManager().GenerateConfimationCode();
@@ -71,7 +83,11 @@ namespace BLL.BussinessLogics
 
             _uow.GetRepository<User>().Insert(newUser);
             _uow.Commit();
-            return new UserLogin { Email = newUser.Email, ConfirmationCode = newUser.ConfirmationCode };
+            return new UserLogin 
+            { 
+                Email = newUser.Email, 
+                ConfirmationCode = newUser.ConfirmationCode 
+            };
         }
     }
 }

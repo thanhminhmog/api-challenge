@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("challenges")]
     [ApiController]
     [Authorize]
     public class UserController : ControllerBase
@@ -45,7 +45,7 @@ namespace API.Controllers
             return Ok(challenges);
         }
 
-        [HttpGet]
+        [HttpGet("{id}")]
         public IActionResult GetChallengeDetail(Guid id)
         {
             ClaimsIdentity identity = HttpContext.User.Identity as ClaimsIdentity;

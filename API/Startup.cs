@@ -37,6 +37,14 @@ namespace API
             // configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSetting>(appSettingsSection);
+
+            // configure startup page
+            var helpPage = Configuration.GetSection("HelpContent");
+            services.Configure<HelpPage>(helpPage);
+
+            // configure startup page
+            var indexPage = Configuration.GetSection("IndexContent");
+            services.Configure<IndexPage>(indexPage);
             #endregion
 
             #region JWT Auth
@@ -77,7 +85,6 @@ namespace API
             services.AddScoped<IUserLogic, UserLogic>();
             services.AddScoped<IGuestLogic, GuestLogic>();
             #endregion
-
 
             services.AddControllers();
         }
