@@ -31,6 +31,13 @@ namespace API.Controllers
         /// <response code="404">Empty challenge list</response>
         /// <response code="500">Internal Error</response>
         [HttpGet]
+        #region RepCode 200 400 401 404 500
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        #endregion
         public IActionResult ViewChallengeList()
         {
             ClaimsIdentity identity = HttpContext.User.Identity as ClaimsIdentity;
@@ -64,6 +71,13 @@ namespace API.Controllers
         /// <response code="403">User's position different from challenge's position</response>
         /// <response code="500">Internal Error</response>
         [HttpGet("{id}")]
+        #region RepCode 200 400 401 403 500
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        #endregion
         public IActionResult GetChallengeDetail(Guid id)
         {
             ClaimsIdentity identity = HttpContext.User.Identity as ClaimsIdentity;
