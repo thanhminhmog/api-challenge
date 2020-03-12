@@ -1,11 +1,15 @@
 ﻿using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.S3.Transfer;
+using BLL.Helpers;
 using BLL.Models;
 using DAL.Entities;
 using DAL.UnitOfWorks;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,22 +17,17 @@ namespace BLL.BussinessLogics
 {
     public class UserLogic : IUserLogic
     {
-        #region Temp
-        private const string bucketName = "api-challenge-dev";
-        // For simplicity the example creates two objects from the same file.
-        // You specify key names for these objects.
-        private const string keyName1 = "pic";
-        private const string keyName2 = "text";
-        private const string filePath = @"C:\Users\QuangHTM\Desktop\gitCmds.txt";
-        private static readonly RegionEndpoint bucketRegion = RegionEndpoint.APSoutheast1;
+        #region objects and constructors
+        private readonly IUnitOfWork _uow;
+        private AppSetting appSetting;
+        public UserLogic(IUnitOfWork uow, IOptions<AppSetting> options)
+        {
+            _uow = uow;
+            appSetting = options.Value;
+        }
         #endregion
 
 
-        private readonly IUnitOfWork _uow;
-        public UserLogic(IUnitOfWork uow)
-        {
-            _uow = uow;
-        }
         public ChallengeContent ViewChallengeContent(Guid ChallengeId)
         {
             var challenge = _uow.GetRepository<Challenge>().GetAll().FirstOrDefault(c => c.ChallengeId == ChallengeId);
@@ -72,36 +71,30 @@ namespace BLL.BussinessLogics
         }
 
 
-        public async Task WritingAnObjectAsync()
+        public async Task<bool> WritingAnObjectAsync(Stream fileStream, string fileName, string directory = null)
         {
-            IAmazonS3 client = new AmazonS3Client("AKIAQLZICJBWITKRC64V", "IuUWgplycGxkSBmuJUcNPi7PN9/HdpVu0/n50G2/", bucketRegion);
+            IAmazonS3 client = new AmazonS3Client(appSetting.AWSAccessKey, appSetting.AWSSecretKey, RegionEndpoint.APSoutheast1);
             try
             {
-                // 1. Put object-specify only key name for the new object.
-                //var putRequest1 = new PutObjectRequest
-                //{
-                //    BucketName = bucketName,
-                //    Key = keyName1,
-                //    ContentBody = "sample text"
-                //};
+                var fileTransferUtility = new TransferUtility(client);
+                var bucketPath = !string.IsNullOrWhiteSpace(directory)
+                   ? appSetting.BucketName + @"/" + directory
+                   : appSetting.BucketName;
 
-                //PutObjectResponse response1 = await client.PutObjectAsync(putRequest1);
-
-                // 2. Put the object-set ContentType and add metadata.
-                var putRequest2 = new PutObjectRequest
+                var fileUploadRequest = new TransferUtilityUploadRequest()
                 {
-                    BucketName = bucketName,
-                    Key = keyName2,
-                    FilePath = filePath,
-                    ContentType = "text/plain"
+                    BucketName = appSetting.BucketName,
+                    Key = fileName,
+                    InputStream = fileStream
                 };
-                //putRequest2.Metadata.Add("x-amz-meta-title", "someTitle");
-                PutObjectResponse response = await client.PutObjectAsync(putRequest2);
+                await fileTransferUtility.UploadAsync(fileUploadRequest);
+                return true;
             }
-            catch (AmazonS3Exception e)
+            catch (AmazonS3Exception)
             {
-                throw e;
+                return false;
             }
         }
+
     }
 }

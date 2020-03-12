@@ -8,6 +8,11 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using BLL.BussinessLogics;
+using System.Security.Claims;
+using BLL.Models;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API
 {
@@ -15,20 +20,7 @@ namespace API
     [ApiController]
     public class BaseController : ControllerBase
     {
-        private readonly IUserLogic _userLogic;
-
-        public BaseController(IUserLogic userLogic)
-        {
-            _userLogic = userLogic;
-        }
-
-        [HttpPost]
-        public IActionResult WritingObject()
-        {
-            _userLogic.WritingAnObjectAsync().Wait();
-            return Ok("Uploaded");
-        }
-
+        
 
     }
 }
