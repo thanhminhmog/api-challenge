@@ -1,14 +1,29 @@
-﻿using BLL.Models;
+﻿using Amazon;
+using Amazon.S3;
+using Amazon.S3.Model;
+using BLL.Models;
 using DAL.Entities;
 using DAL.UnitOfWorks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BLL.BussinessLogics
 {
     public class UserLogic : IUserLogic
     {
+        #region Temp
+        private const string bucketName = "api-challenge-dev";
+        // For simplicity the example creates two objects from the same file.
+        // You specify key names for these objects.
+        private const string keyName1 = "pic";
+        private const string keyName2 = "text";
+        private const string filePath = @"C:\Users\QuangHTM\Desktop\gitCmds.txt";
+        private static readonly RegionEndpoint bucketRegion = RegionEndpoint.APSoutheast1;
+        #endregion
+
+
         private readonly IUnitOfWork _uow;
         public UserLogic(IUnitOfWork uow)
         {
@@ -54,6 +69,39 @@ namespace BLL.BussinessLogics
             }).ToList();
 
             return ChallengeProfilesList;
+        }
+
+
+        public async Task WritingAnObjectAsync()
+        {
+            IAmazonS3 client = new AmazonS3Client("AKIAQLZICJBWITKRC64V", "IuUWgplycGxkSBmuJUcNPi7PN9/HdpVu0/n50G2/", bucketRegion);
+            try
+            {
+                // 1. Put object-specify only key name for the new object.
+                //var putRequest1 = new PutObjectRequest
+                //{
+                //    BucketName = bucketName,
+                //    Key = keyName1,
+                //    ContentBody = "sample text"
+                //};
+
+                //PutObjectResponse response1 = await client.PutObjectAsync(putRequest1);
+
+                // 2. Put the object-set ContentType and add metadata.
+                var putRequest2 = new PutObjectRequest
+                {
+                    BucketName = bucketName,
+                    Key = keyName2,
+                    FilePath = filePath,
+                    ContentType = "text/plain"
+                };
+                //putRequest2.Metadata.Add("x-amz-meta-title", "someTitle");
+                PutObjectResponse response = await client.PutObjectAsync(putRequest2);
+            }
+            catch (AmazonS3Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

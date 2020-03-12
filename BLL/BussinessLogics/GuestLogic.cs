@@ -55,18 +55,32 @@ namespace BLL.BussinessLogics
 
         public UserLogin Register(UserRegister user)
         {
+            Guid positionId = new Guid();
             if (user == null)
             {
                 throw new ArgumentNullException("Invalid Acccount Input");
             }
-            Guid positionId = _uow
+
+            try
+            {
+                positionId = _uow
                 .GetRepository<Position>()
                 .GetAll()
                 .SingleOrDefault(p => p.Name == user.PositionName).PositionId;
-            if (positionId == null)
-            {
-                throw new ArgumentException("Invalid Position");
             }
+            catch (InvalidOperationException ioe)
+            {
+                throw ioe;
+            }
+            catch (NullReferenceException nre)
+            {
+                throw nre;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            
 
             string newCofimationCode = new ConfirmationCodeManager().GenerateConfimationCode();
 

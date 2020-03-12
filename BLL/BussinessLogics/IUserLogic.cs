@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace BLL.BussinessLogics
 {
@@ -9,5 +10,6 @@ namespace BLL.BussinessLogics
     {
         public List<ChallengeProfile> ViewChallengesList(UserProfile userProfile);
         public ChallengeContent ViewChallengeContent(Guid ChallengeId);
+        public Task WritingAnObjectAsync();
     }
 }
