@@ -1,19 +1,33 @@
-﻿using BLL.Models;
+﻿using Amazon;
+using Amazon.S3;
+using Amazon.S3.Model;
+using Amazon.S3.Transfer;
+using BLL.Helpers;
+using BLL.Models;
 using DAL.Entities;
 using DAL.UnitOfWorks;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BLL.BussinessLogics
 {
     public class UserLogic : IUserLogic
     {
+        #region objects and constructors
         private readonly IUnitOfWork _uow;
-        public UserLogic(IUnitOfWork uow)
+        private AppSetting appSetting;
+        public UserLogic(IUnitOfWork uow, IOptions<AppSetting> options)
         {
             _uow = uow;
+            appSetting = options.Value;
         }
+        #endregion
+
+
         public ChallengeContent ViewChallengeContent(Guid ChallengeId)
         {
             var challenge = _uow.GetRepository<Challenge>().GetAll().FirstOrDefault(c => c.ChallengeId == ChallengeId);
@@ -55,5 +69,32 @@ namespace BLL.BussinessLogics
 
             return ChallengeProfilesList;
         }
+
+
+        public async Task<bool> WritingAnObjectAsync(Stream fileStream, string fileName, string directory = null)
+        {
+            IAmazonS3 client = new AmazonS3Client(appSetting.AWSAccessKey, appSetting.AWSSecretKey, RegionEndpoint.APSoutheast1);
+            try
+            {
+                var fileTransferUtility = new TransferUtility(client);
+                var bucketPath = !string.IsNullOrWhiteSpace(directory)
+                   ? appSetting.BucketName + @"/" + directory
+                   : appSetting.BucketName;
+
+                var fileUploadRequest = new TransferUtilityUploadRequest()
+                {
+                    BucketName = appSetting.BucketName,
+                    Key = fileName,
+                    InputStream = fileStream
+                };
+                await fileTransferUtility.UploadAsync(fileUploadRequest);
+                return true;
+            }
+            catch (AmazonS3Exception)
+            {
+                return false;
+            }
+        }
+
     }
 }

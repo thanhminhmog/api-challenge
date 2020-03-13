@@ -1,24 +1,32 @@
 ﻿using BLL.BussinessLogics;
+using BLL.Helpers;
 using BLL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
-    [Route("challenges")]
+    [Route("user")]
     [ApiController]
     [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserLogic _userLogic;
-        public UserController(IUserLogic userLogic)
+        protected readonly IOptions<AppSetting> _options;
+        public UserController(IUserLogic userLogic, IOptions<AppSetting> options)
         {
             _userLogic = userLogic;
+            _options = options;
         }
 
         /// <summary>
@@ -105,6 +113,34 @@ namespace API.Controllers
                 ChallengeDescription = chal.ChallengeDescription
             };
             return Ok(challenge);
+        }
+
+        /// <summary>
+        /// Upload Cv file 
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        [HttpPost("cv")]
+        public async Task<IActionResult> UploadCV(IFormFile file)
+        {
+            if (file.Length == 0)
+            {
+                return BadRequest("please provide valid file");
+            }
+            var fileName = ContentDispositionHeaderValue
+                .Parse(file.ContentDisposition)
+                .FileName
+                .TrimStart().ToString();
+            var folderName = Request.Form.ContainsKey("folder") ? Request.Form["folder"].ToString() : null;
+            bool status;
+            using (var fileStream = file.OpenReadStream())
+            using (var ms = new MemoryStream())
+            {
+                await fileStream.CopyToAsync(ms);
+                status = await _userLogic.WritingAnObjectAsync(ms, fileName, folderName);
+            }
+            return status ? Ok("success")
+                          : StatusCode((int)HttpStatusCode.InternalServerError, $"error uploading {fileName}");
         }
     }
 }

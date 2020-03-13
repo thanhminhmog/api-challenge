@@ -1,6 +1,7 @@
 ﻿using BLL.BussinessLogics;
 using BLL.Helpers;
 using BLL.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -25,6 +26,8 @@ namespace API.Controllers
         }
         #endregion
 
+
+
         /// <summary>
         /// View Start page
         /// </summary>
@@ -41,6 +44,8 @@ namespace API.Controllers
             var index = _indexPage.Value;
             return Ok(index.Message);
         }
+
+
 
         /// <summary>
         /// View Help page
@@ -63,26 +68,46 @@ namespace API.Controllers
                 + contentList.ToString());
         }
 
+
+
         /// <summary>
-        /// Register a User
+        /// Register with Email - Phone - FullName - PositionName
         /// </summary>
-        /// <returns>User's Email and User's Confirmation Code</returns>
-        /// <response code="200">User Registed</response>
-        /// <response code="400">Not have enough infomation</response>
-        /// <response code="500">Internal Error</response>
+        /// 
+        /// <remarks>
+        /// 
+        /// Sample Request:
+        /// 
+        /// 
+        ///     {
+        ///         "Email" : "name@name.com",
+        ///         "Phone" : "123456"
+        ///         "FullName" : "John Doe"
+        ///         "PositionName" : "junior"
+        ///     }
+        ///     
+        /// </remarks>
+        /// 
+        /// 
+        /// 
+        /// <returns>ConfirmationCode</returns>
+        /// 
+        /// <response code="200">Successfully registered. All info valid.</response>
+        /// <response code="400">Invalid Input</response>
+        /// <response code="404">Server Denied Access</response>
+        /// <response code="500">Server Is Down</response>
         [HttpPost("register")]
-        #region RepCode 200 400 500
+        [AllowAnonymous]
+        #region RepCode 200 400 404 500
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         #endregion
         public IActionResult Register(UserRegister user)
         {
             //  Input : UserRegister includes :
             //  Email - Phone - FullName - PositionName
-            //  ///////////////////////////////////
-            //  Return : UserLogin includes :
-            //  Email - ConfirmationCode
             UserLogin userLogin = new UserLogin();
             try
             {
@@ -109,8 +134,24 @@ namespace API.Controllers
             {
                 return BadRequest(ar.Message + "\n" + ar.StackTrace);
             }
+            catch (NullReferenceException nre)
+            {
+                return BadRequest(nre.Message + "\n" + nre.StackTrace);
+            }
+            catch (InvalidOperationException ioe)
+            {
+                return BadRequest(ioe.Message + "\n" + ioe.StackTrace);
+            }
+            //  ///////////////////////////////////
+            //  Return : UserLogin includes :
+            //  Email - ConfirmationCode
+            //  ///////////////////////////////////
             return Ok(userLogin);
         }
+
+
+
+
 
         /// <summary>
         /// Login to get Access Token
@@ -136,7 +177,11 @@ namespace API.Controllers
             };
 
             //  Check For Null Inputs
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(confirmationCode))
+           
+            string token = "";
+
+            //  Check For Null Inputs
+            if (user.Email.Length <= 0 || user.ConfirmationCode.Length <= 0)
             {
                 return BadRequest("Email and ConfimationCode can not be empty");
             }
@@ -151,24 +196,29 @@ namespace API.Controllers
             }
 
 
-            string token;
             try
             {
                 token = _logic.Login(user);
+                //  ///////////////////////////////////
                 //  If token was an empty string, it mean username or password were incorrect
                 //  In theory it should not reach this if-block, and throws ArgumentNullException instead
                 //  This is here just for safety measure
+                //  ///////////////////////////////////
                 if (token.Length == 0)
                 {
                     return NotFound("Wrong Email or Confimation code");
                 }
             }
+            //  ///////////////////////////////////
             //  Exception When User Is Not Found
+            //  ///////////////////////////////////
             catch (ArgumentNullException arn)
             {
                 return BadRequest(arn.Message + "\n" + arn.StackTrace);
             }
+            //  ///////////////////////////////////
             //  Exception When Position Assigned To User Is Not Found
+            //  ///////////////////////////////////
             catch (ArgumentException ar)
             {
                 return BadRequest(ar.Message + "\n" + ar.StackTrace);
