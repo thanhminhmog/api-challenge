@@ -17,5 +17,7 @@ namespace DAL.Entities
         public string ConfirmationCode { get; set; }
         public Guid PositionId { get; set; }
         public Position Position { get; set; }
+
+        public Cv Cv { get; set; }
     }
 }

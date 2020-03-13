@@ -21,6 +21,11 @@ namespace DAL.Repositories
             return _dbSet;
         }   
 
+        public T FindById(Guid id)
+        {
+            return _dbSet.Find(id);
+        }
+
         public void Insert(T entity)
         {
             _dbSet.Add(entity);

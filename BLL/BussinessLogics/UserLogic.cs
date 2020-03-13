@@ -71,20 +71,42 @@ namespace BLL.BussinessLogics
         }
 
 
-        public async Task<bool> WritingAnObjectAsync(Stream fileStream, string fileName)
+        public async Task<bool> WritingAnObjectAsync(Stream fileStream, string fileName, string email)
         {
             IAmazonS3 client = new AmazonS3Client(appSetting.AWSAccessKey, appSetting.AWSSecretKey, RegionEndpoint.APSoutheast1);
             try
             {
                 var fileTransferUtility = new TransferUtility(client);
 
+                CvModel cvModel = new CvModel
+                {
+                    Email = email,
+                    FileName = fileName,
+                    KeyName = Guid.NewGuid(),
+                    UploadDate = DateTime.UtcNow,
+                };
+
                 var fileUploadRequest = new TransferUtilityUploadRequest()
                 {
                     BucketName = appSetting.BucketName,
                     Key = fileName,
                     InputStream = fileStream,
-
                 };
+                fileUploadRequest.Metadata.Add("email", cvModel.Email);
+                fileUploadRequest.Metadata.Add("upload-time", cvModel.UploadDate.ToString());
+                var userid = _uow.GetRepository<User>().GetAll().FirstOrDefault(u => u.Email == cvModel.Email).UserId;
+                if(userid == null)
+                {
+                    return false;
+                }
+                _uow.GetRepository<Cv>().Insert(new Cv
+                {
+                    UserId = userid,
+                    FileName = cvModel.FileName,
+                    KeyName = cvModel.KeyName,
+                    UploadDate = cvModel.UploadDate,
+                });
+                _uow.Commit();
                 await fileTransferUtility.UploadAsync(fileUploadRequest);
                 return true;
             }

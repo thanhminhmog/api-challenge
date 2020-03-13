@@ -122,6 +122,18 @@ namespace API.Controllers
         [HttpPost("cv")]
         public async Task<IActionResult> UploadCV(IFormFile file)
         {
+            ClaimsIdentity identity = HttpContext.User.Identity as ClaimsIdentity;
+            UserProfile userProfile = new UserProfile();
+            if (identity != null)
+            {
+                IEnumerable<Claim> claims = identity.Claims;
+                userProfile.Email = claims.FirstOrDefault(c => c.Type == "user_email").Value;
+            }
+
+            if (userProfile.Email == null)
+            {
+                return BadRequest("User not have pemission to access to this challenge");
+            }
             if (file.Length == 0)
             {
                 return BadRequest("please provide valid file");
@@ -131,11 +143,12 @@ namespace API.Controllers
                 .FileName
                 .TrimStart().Trim('"').ToString();
             bool status;
+
             using (var fileStream = file.OpenReadStream())
             using (var ms = new MemoryStream())
             {
                 await fileStream.CopyToAsync(ms);
-                status = await _userLogic.WritingAnObjectAsync(ms, fileName);
+                status = await _userLogic.WritingAnObjectAsync(ms, fileName, userProfile.Email);
             }
             return status ? Ok("success")
                           : StatusCode((int)HttpStatusCode.InternalServerError, $"error uploading {fileName}");
@@ -144,6 +157,18 @@ namespace API.Controllers
         [HttpGet("cv")]
         public async Task<IActionResult> GetCvUrl(string fileName)
         {
+            ClaimsIdentity identity = HttpContext.User.Identity as ClaimsIdentity;
+            UserProfile userProfile = new UserProfile();
+            if (identity != null)
+            {
+                IEnumerable<Claim> claims = identity.Claims;
+                userProfile.Email = claims.FirstOrDefault(c => c.Type == "user_email").Value;
+            }
+
+            if (userProfile.Email == null)
+            {
+                return BadRequest("User not have pemission to access to this challenge");
+            }
             if (string.IsNullOrEmpty(fileName))
             {
                 return BadRequest("please provide valid file or valid folder name");
