@@ -18,7 +18,6 @@ namespace API.Controllers
 {
     [Route("user")]
     [ApiController]
-    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserLogic _userLogic;
@@ -130,17 +129,31 @@ namespace API.Controllers
             var fileName = ContentDispositionHeaderValue
                 .Parse(file.ContentDisposition)
                 .FileName
-                .TrimStart().ToString();
-            var folderName = Request.Form.ContainsKey("folder") ? Request.Form["folder"].ToString() : null;
+                .TrimStart().Trim('"').ToString();
             bool status;
             using (var fileStream = file.OpenReadStream())
             using (var ms = new MemoryStream())
             {
                 await fileStream.CopyToAsync(ms);
-                status = await _userLogic.WritingAnObjectAsync(ms, fileName, folderName);
+                status = await _userLogic.WritingAnObjectAsync(ms, fileName);
             }
             return status ? Ok("success")
                           : StatusCode((int)HttpStatusCode.InternalServerError, $"error uploading {fileName}");
         }
+
+        [HttpGet("cv")]
+        public async Task<IActionResult> GetCvUrl(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return BadRequest("please provide valid file or valid folder name");
+            }
+            var response = await _userLogic.ReadFileAsync(fileName);
+            if (response.FileStream == null)
+            {
+                return NotFound();
+            }
+            return File(response.FileStream, response.ContentType);
+        }
     }
-}
+}   

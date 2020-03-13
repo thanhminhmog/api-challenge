@@ -71,21 +71,19 @@ namespace BLL.BussinessLogics
         }
 
 
-        public async Task<bool> WritingAnObjectAsync(Stream fileStream, string fileName, string directory = null)
+        public async Task<bool> WritingAnObjectAsync(Stream fileStream, string fileName)
         {
             IAmazonS3 client = new AmazonS3Client(appSetting.AWSAccessKey, appSetting.AWSSecretKey, RegionEndpoint.APSoutheast1);
             try
             {
                 var fileTransferUtility = new TransferUtility(client);
-                var bucketPath = !string.IsNullOrWhiteSpace(directory)
-                   ? appSetting.BucketName + @"/" + directory
-                   : appSetting.BucketName;
 
                 var fileUploadRequest = new TransferUtilityUploadRequest()
                 {
                     BucketName = appSetting.BucketName,
                     Key = fileName,
-                    InputStream = fileStream
+                    InputStream = fileStream,
+
                 };
                 await fileTransferUtility.UploadAsync(fileUploadRequest);
                 return true;
@@ -93,6 +91,27 @@ namespace BLL.BussinessLogics
             catch (AmazonS3Exception)
             {
                 return false;
+            }
+        }
+
+        public async Task<(Stream FileStream, string ContentType)> ReadFileAsync(string fileName)
+        {
+            IAmazonS3 client = new AmazonS3Client(appSetting.AWSAccessKey, appSetting.AWSSecretKey, RegionEndpoint.APSoutheast1);
+            try
+            {
+                var fileTransferUtility = new TransferUtility(client);
+                var request = new GetObjectRequest()
+                {
+                    BucketName = appSetting.BucketName,
+                    Key = fileName
+                };
+
+                var objectResponse = await fileTransferUtility.S3Client.GetObjectAsync(request);
+                return (objectResponse.ResponseStream, objectResponse.Headers.ContentType);
+            }
+            catch (AmazonS3Exception )
+            {
+                return (null, null);
             }
         }
 

@@ -9,6 +9,7 @@ namespace BLL.Models
     {
         public string Email { get; set; }
         public DateTime UploadDate { get; set; }
-        public IFormFile File { get; set; }
+        public string FileName { get; set; }
+        public Guid KeyName { get; set; }
     }
 }

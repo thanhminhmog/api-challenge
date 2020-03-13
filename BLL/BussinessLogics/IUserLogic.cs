@@ -11,6 +11,7 @@ namespace BLL.BussinessLogics
     {
         public List<ChallengeProfile> ViewChallengesList(UserProfile userProfile);
         public ChallengeContent ViewChallengeContent(Guid ChallengeId);
-        Task<bool> WritingAnObjectAsync(Stream fileStream, string fileName, string directory = null);
+        Task<bool> WritingAnObjectAsync(Stream fileStream, string fileName);
+        Task<(Stream FileStream, string ContentType)> ReadFileAsync(string fileName);
     }
 }
