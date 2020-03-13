@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BLL.BussinessLogics;
+﻿using BLL.BussinessLogics;
 using BLL.Helpers;
 using BLL.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System;
 
 namespace API.Controllers
 {
@@ -92,13 +88,18 @@ namespace API.Controllers
                 Email = email,
                 ConfirmationCode = confirmationCode,
             };
-            string token = "";
 
             //  Check For Null Inputs
-            if (email.Length <= 0 || confirmationCode.Length <= 0)
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(confirmationCode))
             {
                 return BadRequest("Email and ConfimationCode can not be empty");
             }
+            if (email.Length <= 8 || confirmationCode.Length <= 8)
+            {
+                return BadRequest("Email and ConfimationCode must be 8 or more characters");
+            }
+
+            string token;
             try
             {
                 token = _logic.Login(user);
