@@ -1,6 +1,7 @@
 ﻿using BLL.BussinessLogics;
 using BLL.Helpers;
 using BLL.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
@@ -24,15 +25,34 @@ namespace API.Controllers
         }
         #endregion
 
-
+        /// <summary>
+        /// View Start page
+        /// </summary>
+        /// <returns>Start page</returns>
+        /// <response code="200">Start page</response>
+        /// <response code="500">Internal Error</response>
         [HttpGet]
+        #region RepCode 200 500
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        #endregion
         public IActionResult Guest()
         {
             var index = _indexPage.Value;
             return Ok(index.Message);
         }
 
+        /// <summary>
+        /// View Help page
+        /// </summary>
+        /// <returns>Help page</returns>
+        /// <response code="200">Help page</response>
+        /// <response code="500">Internal Error</response>
         [HttpGet("help")]
+        #region RepCode 200 500
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        #endregion
         public IActionResult Help()
         {
             var helplist = _helpPage.Value;
@@ -43,7 +63,19 @@ namespace API.Controllers
                 + contentList.ToString());
         }
 
+        /// <summary>
+        /// Register a User
+        /// </summary>
+        /// <returns>User's Email and User's Confirmation Code</returns>
+        /// <response code="200">User Registed</response>
+        /// <response code="400">Not have enough infomation</response>
+        /// <response code="500">Internal Error</response>
         [HttpPost("register")]
+        #region RepCode 200 400 500
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        #endregion
         public IActionResult Register(UserRegister user)
         {
             //  Input : UserRegister includes :
@@ -80,7 +112,21 @@ namespace API.Controllers
             return Ok(userLogin);
         }
 
+        /// <summary>
+        /// Login to get Access Token
+        /// </summary>
+        /// <returns>Access token</returns>
+        /// <response code="200">Logged in</response>
+        /// <response code="400">Not have enough infomation</response>
+        /// <response code="404">User Not Exist</response>
+        /// <response code="500">Internal Error</response>
         [HttpPost("login")]
+        #region RepCode 200 400 404 500
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        #endregion
         public IActionResult Login(string email, string confirmationCode)
         {
             UserLogin user = new UserLogin
@@ -103,7 +149,6 @@ namespace API.Controllers
             {
                 return BadRequest("ConfimationCode must be 32 characters we send you when you register");
             }
-
 
 
             string token;
