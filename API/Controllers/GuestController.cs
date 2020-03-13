@@ -85,7 +85,7 @@ namespace API.Controllers
         {
             UserLogin user = new UserLogin
             {
-                Email = email,
+                Email = email.ToLower(),
                 ConfirmationCode = confirmationCode,
             };
 
@@ -94,10 +94,17 @@ namespace API.Controllers
             {
                 return BadRequest("Email and ConfimationCode can not be empty");
             }
-            if (email.Length <= 8 || confirmationCode.Length <= 8)
+            if (email.Length <= 8)
             {
                 return BadRequest("Email and ConfimationCode must be 8 or more characters");
             }
+
+            if (confirmationCode.Length < 32)
+            {
+                return BadRequest("ConfimationCode must be 32 characters we send you when you register");
+            }
+
+
 
             string token;
             try
