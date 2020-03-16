@@ -6,7 +6,9 @@ using BLL.Helpers;
 using BLL.Models;
 using DAL.Entities;
 using DAL.UnitOfWorks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,6 +28,7 @@ namespace BLL.BussinessLogics
             appSetting = options.Value;
         }
         #endregion
+
 
 
         public ChallengeContent ViewChallengeContent(Guid ChallengeId)
@@ -95,24 +98,39 @@ namespace BLL.BussinessLogics
                 fileUploadRequest.Metadata.Add("email", cvModel.Email);
                 fileUploadRequest.Metadata.Add("upload-time", cvModel.UploadDate.ToString());
                 var userid = _uow.GetRepository<User>().GetAll().FirstOrDefault(u => u.Email == cvModel.Email).UserId;
-                if(userid == null)
+                if (userid == null)
                 {
                     return false;
                 }
-                _uow.GetRepository<Cv>().Insert(new Cv
+
+                #region CvTableInsert
+                try
                 {
-                    UserId = userid,
-                    FileName = cvModel.FileName,
-                    KeyName = cvModel.KeyName,
-                    UploadDate = cvModel.UploadDate,
-                });
-                _uow.Commit();
+                    _uow.GetRepository<Cv>().Insert(new Cv
+                    {
+                        UserId = userid,
+                        FileName = cvModel.FileName,
+                        KeyName = cvModel.KeyName,
+                        UploadDate = cvModel.UploadDate,
+                    });
+                    _uow.Commit();
+                }
+                catch (PostgresException pgs)
+                {
+                    throw pgs;
+                }
+                #endregion
+
                 await fileTransferUtility.UploadAsync(fileUploadRequest);
                 return true;
             }
             catch (AmazonS3Exception)
             {
                 return false;
+            }
+            catch (PostgresException pgs)
+            {
+                throw pgs;
             }
         }
 
@@ -134,6 +152,29 @@ namespace BLL.BussinessLogics
             catch (AmazonS3Exception )
             {
                 return (null, null);
+            }
+        }
+
+        public string ReadFileUrlAsync(string fileName)
+        {
+            IAmazonS3 client = new AmazonS3Client(appSetting.AWSAccessKey, appSetting.AWSSecretKey, RegionEndpoint.APSoutheast1);
+            try
+            {
+                var request = new GetPreSignedUrlRequest()
+                {
+                    BucketName = appSetting.BucketName,
+                    Key = fileName,
+                    Expires = DateTime.Now.AddDays(10),
+                    Protocol = Protocol.HTTPS
+                };
+
+                string url = client.GetPreSignedURL(request);
+
+                return url;
+            }
+            catch (AmazonS3Exception)
+            {
+                return ("Error");
             }
         }
 

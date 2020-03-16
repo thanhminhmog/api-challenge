@@ -20,7 +20,5 @@ namespace API
     [ApiController]
     public class BaseController : ControllerBase
     {
-        
-
     }
 }

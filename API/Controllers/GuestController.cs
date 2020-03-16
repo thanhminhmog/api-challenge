@@ -9,23 +9,17 @@ using System;
 
 namespace API.Controllers
 {
-    [Route("")]
+
+    [Route("start")]
     [ApiController]
-    public class GuestController : ControllerBase
+    public class WelcomeController : ControllerBase
     {
-        #region objects and constructors
-        private IGuestLogic _logic;
-        protected readonly IOptions<HelpPage> _helpPage;
         protected readonly IOptions<IndexPage> _indexPage;
 
-        public GuestController(IGuestLogic guestLogic, IOptions<HelpPage> helpPage, IOptions<IndexPage> indexPage)
+        public WelcomeController(IOptions<IndexPage> indexPage)
         {
-            _logic = guestLogic;
-            _helpPage = helpPage;
             _indexPage = indexPage;
         }
-        #endregion
-
 
 
         /// <summary>
@@ -44,7 +38,19 @@ namespace API.Controllers
             var index = _indexPage.Value;
             return Ok(index.Message);
         }
+    }
 
+
+    [Route("help")]
+    [ApiController]
+    public class HelpController : ControllerBase
+    {
+        protected readonly IOptions<HelpPage> _helpPage;
+
+        public HelpController(IOptions<HelpPage> helpPage)
+        {
+            _helpPage = helpPage;
+        }
 
 
         /// <summary>
@@ -53,7 +59,7 @@ namespace API.Controllers
         /// <returns>Help page</returns>
         /// <response code="200">Help page</response>
         /// <response code="500">Internal Error</response>
-        [HttpGet("help")]
+        [HttpGet]
         #region RepCode 200 500
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -67,6 +73,51 @@ namespace API.Controllers
                 + helplist.Guildline + "\n\n"
                 + contentList.ToString());
         }
+
+
+        [HttpGet("login")]
+        public IActionResult LoginHelp()
+        {
+            string registerFormat = "POST /Login" +
+                "\n{" +
+                "\n    \"email\": \"string\"" +
+                "\n    \"confirmationCode\": \"string\"" +
+                "\n}";
+            return Ok(registerFormat);
+        }
+
+
+
+        [HttpGet("register")]
+        public IActionResult RegisterHelp()
+        {
+            string loginFormat = "Positions we are hiring : Junior, Mid-level, Senior" +
+                "\n\nPOST /Register" +
+                "\n{" +
+                "\n    \"phone\": \"string\"" +
+                "\n    \"fullName\": \"string\"" +
+                "\n    \"positionName\": \"string\"" +
+                "\n    \"email\": \"string\"" +
+                "\n}";
+            return Ok(loginFormat);
+        }
+    }
+
+
+
+    [Route("")]
+    [ApiController]
+    public class GuestController : ControllerBase
+    {
+        #region objects and constructors
+        private IGuestLogic _logic;
+
+        public GuestController(IGuestLogic guestLogic)
+        {
+            _logic = guestLogic;
+        }
+        #endregion
+
 
 
 
@@ -83,7 +134,7 @@ namespace API.Controllers
         ///         "Email" : "name@name.com",
         ///         "Phone" : "123456"
         ///         "FullName" : "John Doe"
-        ///         "PositionName" : "junior"
+        ///         "PositionName" : "Junior"
         ///     }
         ///     
         /// </remarks>
@@ -156,6 +207,17 @@ namespace API.Controllers
         /// <summary>
         /// Login to get Access Token
         /// </summary>
+        /// <remarks>
+        /// 
+        /// Sample Request:
+        /// 
+        /// 
+        ///     {
+        ///         "email" : "name@name.com"
+        ///         "confirmationCode" : "string"
+        ///     }
+        ///     
+        /// </remarks>
         /// <returns>Access token</returns>
         /// <response code="200">Logged in</response>
         /// <response code="400">Not have enough infomation</response>
@@ -177,7 +239,7 @@ namespace API.Controllers
             };
 
             //  Check For Null Inputs
-           
+
             string token = "";
 
             //  Check For Null Inputs
@@ -192,7 +254,7 @@ namespace API.Controllers
 
             if (confirmationCode.Length < 32)
             {
-                return BadRequest("ConfimationCode must be 32 characters we send you when you register");
+                return BadRequest("ConfimationCode must be 32 characters we sent you when you registered");
             }
 
 
@@ -201,7 +263,7 @@ namespace API.Controllers
                 token = _logic.Login(user);
                 //  ///////////////////////////////////
                 //  If token was an empty string, it mean username or password were incorrect
-                //  In theory it should not reach this if-block, and throws ArgumentNullException instead
+                //  In theory it should not reach this if-block, instead throws ArgumentNullException
                 //  This is here just for safety measure
                 //  ///////////////////////////////////
                 if (token.Length == 0)

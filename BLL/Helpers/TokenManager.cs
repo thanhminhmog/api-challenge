@@ -31,7 +31,7 @@ namespace BLL.Helpers
                     new Claim("user_email", user.Email),
                     new Claim("position", user.PositionName),
                 }),
-                Expires = DateTime.Now.AddMinutes(15),
+                Expires = DateTime.Now.AddMinutes(45),
                 Issuer = null,
                 Audience = null,
                 IssuedAt = DateTime.UtcNow,

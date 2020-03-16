@@ -13,5 +13,6 @@ namespace BLL.BussinessLogics
         public ChallengeContent ViewChallengeContent(Guid ChallengeId);
         Task<bool> WritingAnObjectAsync(Stream fileStream, string fileName, string email);
         Task<(Stream FileStream, string ContentType)> ReadFileAsync(string fileName);
+        string ReadFileUrlAsync(string fileName);
     }
 }

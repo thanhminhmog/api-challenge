@@ -4,7 +4,9 @@ using BLL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -142,13 +144,26 @@ namespace API.Controllers
                 .Parse(file.ContentDisposition)
                 .FileName
                 .TrimStart().Trim('"').ToString();
-            bool status;
+            bool status = false;
 
             using (var fileStream = file.OpenReadStream())
             using (var ms = new MemoryStream())
             {
-                await fileStream.CopyToAsync(ms);
-                status = await _userLogic.WritingAnObjectAsync(ms, fileName, userProfile.Email);
+                try
+                {
+                    await fileStream.CopyToAsync(ms);
+                    status = await _userLogic.WritingAnObjectAsync(ms, fileName, userProfile.Email);
+
+                }
+                catch (PostgresException pgs)
+                {
+                    return BadRequest("PostgresException\n\n" + pgs.Message + "\n" + pgs.StackTrace);
+                }
+                catch (DbUpdateException dbu)
+                {
+                    return BadRequest("DbUpdateException\n\n" + dbu.Message + "\n" + dbu.StackTrace);
+                }
+
             }
             return status ? Ok("success")
                           : StatusCode((int)HttpStatusCode.InternalServerError, $"error uploading {fileName}");
@@ -159,6 +174,7 @@ namespace API.Controllers
         {
             ClaimsIdentity identity = HttpContext.User.Identity as ClaimsIdentity;
             UserProfile userProfile = new UserProfile();
+            #region Check User
             if (identity != null)
             {
                 IEnumerable<Claim> claims = identity.Claims;
@@ -167,18 +183,60 @@ namespace API.Controllers
 
             if (userProfile.Email == null)
             {
-                return BadRequest("User not have pemission to access to this challenge");
+                return BadRequest("User not have CV");
             }
             if (string.IsNullOrEmpty(fileName))
             {
                 return BadRequest("please provide valid file or valid folder name");
             }
+            #endregion
+
+
             var response = await _userLogic.ReadFileAsync(fileName);
             if (response.FileStream == null)
             {
                 return NotFound();
             }
+
+            var repStream = response.FileStream;
+
             return File(response.FileStream, response.ContentType);
+            //return new FileStreamResult(response.FileStream, response.ContentType)
+            //{
+            //    FileDownloadName = fileName
+            //};
+        }
+
+        [HttpGet("cvUrl")]
+        public IActionResult GetUserCvUrl(string fileName)
+        {
+            ClaimsIdentity identity = HttpContext.User.Identity as ClaimsIdentity;
+            UserProfile userProfile = new UserProfile();
+            #region Check User
+            if (identity != null)
+            {
+                IEnumerable<Claim> claims = identity.Claims;
+                userProfile.Email = claims.FirstOrDefault(c => c.Type == "user_email").Value;
+            }
+
+            if (userProfile.Email == null)
+            {
+                return BadRequest("User not have CV");
+            }
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return BadRequest("please provide valid file or valid folder name");
+            }
+            #endregion
+
+
+            var response = _userLogic.ReadFileUrlAsync(fileName);
+
+            return Ok(response);
+            //return new FileStreamResult(response.FileStream, response.ContentType)
+            //{
+            //    FileDownloadName = fileName
+            //};
         }
     }
-}   
+}
