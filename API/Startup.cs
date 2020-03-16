@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BLL.BussinessLogics;
 using BLL.Helpers;
 using DAL;
@@ -10,14 +5,17 @@ using DAL.UnitOfWorks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System;
+using System.IO;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace API
 {
@@ -37,6 +35,14 @@ namespace API
             // configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSetting>(appSettingsSection);
+
+            // configure startup page
+            var helpPage = Configuration.GetSection("HelpContent");
+            services.Configure<HelpPage>(helpPage);
+
+            // configure startup page
+            var indexPage = Configuration.GetSection("IndexContent");
+            services.Configure<IndexPage>(indexPage);
             #endregion
 
             #region JWT Auth
@@ -78,7 +84,40 @@ namespace API
             services.AddScoped<IGuestLogic, GuestLogic>();
             #endregion
 
+            #region Swagger
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Challenge API",
+                    Version = "v1",
+                });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please insert JWT with Bearer into field",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                   {
+                     new OpenApiSecurityScheme
+                     {
+                         Reference = new OpenApiReference
+                         {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                         }
+                     },
+                          new string[] { }
+                   }
+                });
+            });
 
+            #endregion
             services.AddControllers();
         }
 
@@ -93,6 +132,16 @@ namespace API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.RoutePrefix = string.Empty;
+            });
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
