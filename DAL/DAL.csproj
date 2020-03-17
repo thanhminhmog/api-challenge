@@ -7,6 +7,8 @@
   <ItemGroup>
     <Compile Remove="Migrations\20200313082856_Add-cv-table.cs" />
     <Compile Remove="Migrations\20200313082856_Add-cv-table.Designer.cs" />
+    <Compile Remove="Migrations\20200317043354_one-on-one_ef.cs" />
+    <Compile Remove="Migrations\20200317043354_one-on-one_ef.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

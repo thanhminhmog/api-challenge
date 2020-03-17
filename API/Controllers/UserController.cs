@@ -20,6 +20,7 @@ namespace API.Controllers
 {
     [Route("user")]
     [ApiController]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserLogic _userLogic;
@@ -120,8 +121,16 @@ namespace API.Controllers
         /// Upload Cv file 
         /// </summary>
         /// <param name="file"></param>
-        /// <returns></returns>
+        /// <returns>Status</returns>
+        ///  /// <response code="200">Success upload file</response>
+        /// <response code="400">Not have enough infomation</response>
+        /// <response code="401">Unauthorize</response>
+        /// <response code="500">Internal Error</response>
         [HttpPost("cv")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UploadCV(IFormFile file)
         {
             ClaimsIdentity identity = HttpContext.User.Identity as ClaimsIdentity;
@@ -130,6 +139,7 @@ namespace API.Controllers
             {
                 IEnumerable<Claim> claims = identity.Claims;
                 userProfile.Email = claims.FirstOrDefault(c => c.Type == "user_email").Value;
+                userProfile.Id = Guid.Parse(claims.FirstOrDefault(c => c.Type == "user_id").Value);
             }
 
             if (userProfile.Email == null)
@@ -152,7 +162,7 @@ namespace API.Controllers
                 try
                 {
                     await fileStream.CopyToAsync(ms);
-                    status = await _userLogic.WritingAnObjectAsync(ms, fileName, userProfile.Email);
+                    status = await _userLogic.WritingAnObjectAsync(ms, fileName, userProfile);
 
                 }
                 catch (PostgresException pgs)
@@ -168,47 +178,22 @@ namespace API.Controllers
             return status ? Ok("success")
                           : StatusCode((int)HttpStatusCode.InternalServerError, $"error uploading {fileName}");
         }
-
-        [HttpGet("cv")]
-        public async Task<IActionResult> GetCvUrl(string fileName)
-        {
-            ClaimsIdentity identity = HttpContext.User.Identity as ClaimsIdentity;
-            UserProfile userProfile = new UserProfile();
-            #region Check User
-            if (identity != null)
-            {
-                IEnumerable<Claim> claims = identity.Claims;
-                userProfile.Email = claims.FirstOrDefault(c => c.Type == "user_email").Value;
-            }
-
-            if (userProfile.Email == null)
-            {
-                return BadRequest("User not have CV");
-            }
-            if (string.IsNullOrEmpty(fileName))
-            {
-                return BadRequest("please provide valid file or valid folder name");
-            }
-            #endregion
-
-
-            var response = await _userLogic.ReadFileAsync(fileName);
-            if (response.FileStream == null)
-            {
-                return NotFound();
-            }
-
-            var repStream = response.FileStream;
-
-            return File(response.FileStream, response.ContentType);
-            //return new FileStreamResult(response.FileStream, response.ContentType)
-            //{
-            //    FileDownloadName = fileName
-            //};
-        }
-
+        /// <summary>
+        /// Download CV file
+        /// </summary>
+        /// <returns>File</returns>
+        /// <response code="200">Success upload file</response>
+        /// <response code="400">Not have enough infomation</response>
+        /// <response code="401">Unauthorize</response>
+        /// <response code="404">File Not Found</response>
+        /// <response code="500">Internal Error</response>
         [HttpGet("cvUrl")]
-        public IActionResult GetUserCvUrl(string fileName)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetUserCvUrl()
         {
             ClaimsIdentity identity = HttpContext.User.Identity as ClaimsIdentity;
             UserProfile userProfile = new UserProfile();
@@ -217,20 +202,16 @@ namespace API.Controllers
             {
                 IEnumerable<Claim> claims = identity.Claims;
                 userProfile.Email = claims.FirstOrDefault(c => c.Type == "user_email").Value;
+                userProfile.Id = Guid.Parse(claims.FirstOrDefault(c => c.Type == "user_id").Value);
             }
-
             if (userProfile.Email == null)
             {
-                return BadRequest("User not have CV");
-            }
-            if (string.IsNullOrEmpty(fileName))
-            {
-                return BadRequest("please provide valid file or valid folder name");
+                return BadRequest("Missing Email");
             }
             #endregion
 
 
-            var response = _userLogic.ReadFileUrlAsync(fileName);
+            var response = _userLogic.ReadFileUrlAsync(userProfile);
 
             return Ok(response);
             //return new FileStreamResult(response.FileStream, response.ContentType)
@@ -238,5 +219,7 @@ namespace API.Controllers
             //    FileDownloadName = fileName
             //};
         }
+
+
     }
 }
