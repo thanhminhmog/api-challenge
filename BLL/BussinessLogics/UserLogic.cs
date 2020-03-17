@@ -74,7 +74,7 @@ namespace BLL.BussinessLogics
         }
 
 
-        public async Task<bool> WritingAnObjectAsync(Stream fileStream, string fileName, string email)
+        public async Task<bool> WritingAnObjectAsync(Stream fileStream, string fileName, UserProfile userProfile)
         {
             IAmazonS3 client = new AmazonS3Client(appSetting.AWSAccessKey, appSetting.AWSSecretKey, RegionEndpoint.APSoutheast1);
             try
@@ -83,7 +83,7 @@ namespace BLL.BussinessLogics
 
                 CvModel cvModel = new CvModel
                 {
-                    Email = email,
+                    Email = userProfile.Email,
                     FileName = fileName,
                     KeyName = Guid.NewGuid(),
                     UploadDate = DateTime.UtcNow,
@@ -92,13 +92,12 @@ namespace BLL.BussinessLogics
                 var fileUploadRequest = new TransferUtilityUploadRequest()
                 {
                     BucketName = appSetting.BucketName,
-                    Key = fileName,
+                    Key = userProfile.Email + "/" + fileName,
                     InputStream = fileStream,
                 };
                 fileUploadRequest.Metadata.Add("email", cvModel.Email);
                 fileUploadRequest.Metadata.Add("upload-time", cvModel.UploadDate.ToString());
-                var userid = _uow.GetRepository<User>().GetAll().FirstOrDefault(u => u.Email == cvModel.Email).UserId;
-                if (userid == null)
+                if (userProfile.Id == null)
                 {
                     return false;
                 }
@@ -106,14 +105,25 @@ namespace BLL.BussinessLogics
                 #region CvTableInsert
                 try
                 {
-                    _uow.GetRepository<Cv>().Insert(new Cv
+                    var user = _uow.GetRepository<User>().GetAll().FirstOrDefault(u => u.UserId == userProfile.Id);
+                    var existCv = _uow.GetRepository<Cv>().GetAll().FirstOrDefault(c => c.UserId == userProfile.Id);
+                    var cv = new Cv
                     {
-                        UserId = userid,
+                        UserId = userProfile.Id,
                         FileName = cvModel.FileName,
-                        KeyName = cvModel.KeyName,
                         UploadDate = cvModel.UploadDate,
-                    });
+                    };
+                    if (existCv == null)
+                    {
+                        _uow.GetRepository<Cv>().Insert(cv);
+                    }
+                    else
+                    {
+                        _uow.GetRepository<Cv>().Update(cv);
+                        _uow.GetRepository<User>().Update(user);
+                    }
                     _uow.Commit();
+
                 }
                 catch (PostgresException pgs)
                 {
@@ -134,36 +144,43 @@ namespace BLL.BussinessLogics
             }
         }
 
-        public async Task<(Stream FileStream, string ContentType)> ReadFileAsync(string fileName)
+        //public async Task<(Stream FileStream, string ContentType)> ReadFileAsync(string fileName)
+        //{
+        //    IAmazonS3 client = new AmazonS3Client(appSetting.AWSAccessKey, appSetting.AWSSecretKey, RegionEndpoint.APSoutheast1);
+        //    try
+        //    {
+        //        var fileTransferUtility = new TransferUtility(client);
+        //        var request = new GetObjectRequest()
+        //        {
+        //            BucketName = appSetting.BucketName,
+        //            Key = fileName
+        //        };
+        //        var meta = new GetObjectResponse();
+        //        string value = meta.ResponseMetadata.Metadata.FirstOrDefault(m => m.Key.Equals("email")).Value;
+
+        //        var objectResponse = await fileTransferUtility.S3Client.GetObjectAsync(request);
+        //        return (objectResponse.ResponseStream, objectResponse.Headers.ContentType);
+        //    }
+        //    catch (AmazonS3Exception)
+        //    {
+        //        return (null, null);
+        //    }
+        //}
+
+        public string ReadFileUrlAsync(UserProfile userProfile)
         {
             IAmazonS3 client = new AmazonS3Client(appSetting.AWSAccessKey, appSetting.AWSSecretKey, RegionEndpoint.APSoutheast1);
             try
             {
-                var fileTransferUtility = new TransferUtility(client);
-                var request = new GetObjectRequest()
+                var fileName = _uow.GetRepository<Cv>().GetAll().FirstOrDefault(c => c.UserId == userProfile.Id).FileName;
+                if(fileName == null)
                 {
-                    BucketName = appSetting.BucketName,
-                    Key = fileName
-                };
-
-                var objectResponse = await fileTransferUtility.S3Client.GetObjectAsync(request);
-                return (objectResponse.ResponseStream, objectResponse.Headers.ContentType);
-            }
-            catch (AmazonS3Exception )
-            {
-                return (null, null);
-            }
-        }
-
-        public string ReadFileUrlAsync(string fileName)
-        {
-            IAmazonS3 client = new AmazonS3Client(appSetting.AWSAccessKey, appSetting.AWSSecretKey, RegionEndpoint.APSoutheast1);
-            try
-            {
+                    return "File Not found";
+                }
                 var request = new GetPreSignedUrlRequest()
                 {
                     BucketName = appSetting.BucketName,
-                    Key = fileName,
+                    Key = userProfile.Email + "/" + fileName,
                     Expires = DateTime.Now.AddDays(10),
                     Protocol = Protocol.HTTPS
                 };
@@ -177,6 +194,5 @@ namespace BLL.BussinessLogics
                 return ("Error");
             }
         }
-
     }
-}
+};

@@ -44,6 +44,7 @@ namespace BLL.BussinessLogics
 
             UserProfile userProfile = new UserProfile
             {
+                Id = loggedUser.UserId,
                 Email = loggedUser.Email,
                 PositionName = positionName
             };
