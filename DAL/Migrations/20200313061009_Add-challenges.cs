@@ -7,12 +7,12 @@ namespace DAL.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("INSERT INTO public.\"Challenges\"(\"ChallengeId\", \"Name\", \"Content\", \"PositionId\") VALUES('" + Guid.NewGuid() + "', 'challenge1', 'something1', '578d5d9d-c856-4c8f-bb5e-864a442e99e0')");
-            migrationBuilder.Sql("INSERT INTO public.\"Challenges\"(\"ChallengeId\", \"Name\", \"Content\", \"PositionId\") VALUES('" + Guid.NewGuid() + "', 'challenge2', 'something2', '578d5d9d-c856-4c8f-bb5e-864a442e99e0')");
-            migrationBuilder.Sql("INSERT INTO public.\"Challenges\"(\"ChallengeId\", \"Name\", \"Content\", \"PositionId\") VALUES('" + Guid.NewGuid() + "', 'challenge3', 'something3', '578d5d9d-c856-4c8f-bb5e-864a442e99e0')");
-            migrationBuilder.Sql("INSERT INTO public.\"Challenges\"(\"ChallengeId\", \"Name\", \"Content\", \"PositionId\") VALUES('" + Guid.NewGuid() + "', 'challenge4', 'something4', '14969a4d-a42e-46c7-808f-51792945df39')");
-            migrationBuilder.Sql("INSERT INTO public.\"Challenges\"(\"ChallengeId\", \"Name\", \"Content\", \"PositionId\") VALUES('" + Guid.NewGuid() + "', 'challenge5', 'something5', '14969a4d-a42e-46c7-808f-51792945df39')");
-            migrationBuilder.Sql("INSERT INTO public.\"Challenges\"(\"ChallengeId\", \"Name\", \"Content\", \"PositionId\") VALUES('" + Guid.NewGuid() + "', 'challenge6', 'something6', 'f077b7e0-cca5-4e67-9a1a-9e64d0974716')");
+            migrationBuilder.Sql("INSERT INTO public.\"Challenges\"(\"ChallengeId\", \"Name\", \"Content\", \"PositionId\") VALUES('" + Guid.NewGuid() + "', 'challenge1', 'something1', 'fc6b57bf-2532-450d-80b8-113f0fb97335')");
+            migrationBuilder.Sql("INSERT INTO public.\"Challenges\"(\"ChallengeId\", \"Name\", \"Content\", \"PositionId\") VALUES('" + Guid.NewGuid() + "', 'challenge2', 'something2', 'fc6b57bf-2532-450d-80b8-113f0fb97335')");
+            migrationBuilder.Sql("INSERT INTO public.\"Challenges\"(\"ChallengeId\", \"Name\", \"Content\", \"PositionId\") VALUES('" + Guid.NewGuid() + "', 'challenge3', 'something3', 'fc6b57bf-2532-450d-80b8-113f0fb97335')");
+            migrationBuilder.Sql("INSERT INTO public.\"Challenges\"(\"ChallengeId\", \"Name\", \"Content\", \"PositionId\") VALUES('" + Guid.NewGuid() + "', 'challenge4', 'something4', 'e4179214-4bf9-481e-b186-5a08d95f0b71')");
+            migrationBuilder.Sql("INSERT INTO public.\"Challenges\"(\"ChallengeId\", \"Name\", \"Content\", \"PositionId\") VALUES('" + Guid.NewGuid() + "', 'challenge5', 'something5', 'e4179214-4bf9-481e-b186-5a08d95f0b71')");
+            migrationBuilder.Sql("INSERT INTO public.\"Challenges\"(\"ChallengeId\", \"Name\", \"Content\", \"PositionId\") VALUES('" + Guid.NewGuid() + "', 'challenge6', 'something6', 'ab1a22fd-f614-4769-932f-1b62ee630f89')");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

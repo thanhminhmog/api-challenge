@@ -7,9 +7,9 @@ namespace DAL.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("INSERT INTO public.\"Positions\"(\"PositionId\", \"Name\") VALUES('" + Guid.NewGuid() + "', 'Junior')");
-            migrationBuilder.Sql("INSERT INTO public.\"Positions\"(\"PositionId\", \"Name\") VALUES('" + Guid.NewGuid() + "', 'Mid-level')");
-            migrationBuilder.Sql("INSERT INTO public.\"Positions\"(\"PositionId\", \"Name\") VALUES('" + Guid.NewGuid() + "', 'Senior')");
+            migrationBuilder.Sql("INSERT INTO public.\"Positions\"(\"PositionId\", \"Name\") VALUES('" + Guid.NewGuid() + "', 'junior')");
+            migrationBuilder.Sql("INSERT INTO public.\"Positions\"(\"PositionId\", \"Name\") VALUES('" + Guid.NewGuid() + "', 'mid-level')");
+            migrationBuilder.Sql("INSERT INTO public.\"Positions\"(\"PositionId\", \"Name\") VALUES('" + Guid.NewGuid() + "', 'senior')");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

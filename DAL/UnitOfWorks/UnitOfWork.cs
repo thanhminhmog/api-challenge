@@ -8,7 +8,7 @@ namespace DAL.UnitOfWorks
     {
         private readonly DataContext _context;
         private readonly Dictionary<Type, object> repositories = new Dictionary<Type, object>();
-        public UnitOfWork(DataContext context)
+        public UnitOfWork(DataContext context) 
         {
             _context = context;
         }

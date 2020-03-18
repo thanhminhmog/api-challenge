@@ -1,4 +1,5 @@
 ﻿using BLL.Helpers;
+using BLL.Interfaces;
 using BLL.Models;
 using DAL.Entities;
 using DAL.UnitOfWorks;
@@ -57,7 +58,7 @@ namespace BLL.BussinessLogics
         public UserLogin Register(UserRegister user)
         {
             Guid positionId = new Guid();
-            if (user == null)
+            if (user == null || user.PositionName.ToLower() == "admin") 
             {
                 throw new ArgumentNullException("Invalid Acccount Input");
             }
@@ -93,7 +94,8 @@ namespace BLL.BussinessLogics
                 Phone = user.Phone,
                 PositionId = positionId,
                 UserId = Guid.NewGuid(),
-                ConfirmationCode = newCofimationCode
+                ConfirmationCode = newCofimationCode,
+                DateCreate = DateTime.Now
             };
 
             _uow.GetRepository<User>().Insert(newUser);

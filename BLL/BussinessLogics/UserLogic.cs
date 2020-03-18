@@ -3,6 +3,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using BLL.Helpers;
+using BLL.Interfaces;
 using BLL.Models;
 using DAL.Entities;
 using DAL.UnitOfWorks;
@@ -86,7 +87,7 @@ namespace BLL.BussinessLogics
                     Email = userProfile.Email,
                     FileName = fileName,
                     KeyName = Guid.NewGuid(),
-                    UploadDate = DateTime.UtcNow,
+                    UploadDate = DateTime.Now,
                 };
 
                 var fileUploadRequest = new TransferUtilityUploadRequest()

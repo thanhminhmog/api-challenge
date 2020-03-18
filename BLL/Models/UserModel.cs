@@ -26,11 +26,11 @@ namespace BLL.Models
         public string Phone { get; set; }
         public string FullName { get; set; }
         public string PositionName { get; set; }
+
     }
-    public class UserProfile
+    public class UserProfile : UserModel
     {
         public Guid Id { get; set; }
-        public string Email { get; set; }
         public string PositionName { get; set; }
     }
 

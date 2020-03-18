@@ -1,5 +1,7 @@
-﻿using BLL.BussinessLogics;
+﻿using API.Attributes;
+using BLL.BussinessLogics;
 using BLL.Helpers;
+using BLL.Interfaces;
 using BLL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,6 +23,7 @@ namespace API.Controllers
     [Route("user")]
     [ApiController]
     [Authorize]
+    [MyAuthorize("junior, mid-level, senior")]
     public class UserController : ControllerBase
     {
         private readonly IUserLogic _userLogic;

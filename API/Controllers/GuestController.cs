@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BLL.BussinessLogics;
+using BLL.Interfaces;
 using BLL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -68,7 +69,7 @@ namespace API.Controllers
             try
             {
                 //  check input from client
-                if (user == null)
+                if (user == null || user.PositionName.ToLower() == "admin")
                 {
                     return BadRequest("Invalid Input");
                 }
